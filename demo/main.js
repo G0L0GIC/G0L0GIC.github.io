@@ -167,7 +167,7 @@ viewer.addSplatScene(path, {
           text: "再睡会吧", 
           callback: () => {
             // 触发"不行就撤"按钮的点击事件
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
           }
         }
     ]);
