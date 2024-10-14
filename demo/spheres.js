@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import globalState from './globalState.js';
 
 
 export const presetSpheresData = [
@@ -55,6 +56,7 @@ export class InteractiveSpheres {
         this.mouse = new THREE.Vector2();
         this.popupElement = null;
         this.isPopupOpen = false;
+
 
         this.createSpheres();
         this.createPresetSpheres();
@@ -139,36 +141,31 @@ export class InteractiveSpheres {
     }
 
     setupMouseClickHandler() {
-        window.addEventListener('click', this.onMouseClick.bind(this));
-    }
+        window.addEventListener('click', (event) => {
+            if (globalState.isPopupCooldown()) return;
 
-    onMouseClick(event) {
+            this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            this.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-    
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-    
-        const allSpheres = [...this.spheres, ...this.presetSpheres, ...this.collectibleSpheres];
-        const intersects = this.raycaster.intersectObjects(allSpheres);
-    
-        if (intersects.length > 0) {
-            const clickedSphere = intersects[0].object;
-            if (clickedSphere.userData.isCollectible) {
+            this.raycaster.setFromCamera(this.mouse, this.camera);
 
-                this.collectItem(clickedSphere);
-            } else if (clickedSphere.userData.index !== undefined) {
+            const allSpheres = [...this.spheres, ...this.presetSpheres, ...this.collectibleSpheres];
+            const intersects = this.raycaster.intersectObjects(allSpheres);
 
-                this.moveCameraToPreset(clickedSphere.userData.index, this.camera, this.controls);
-            } else if (!clickedSphere.userData.clicked){
-                this.showPopup(clickedSphere.userData.popupContent);
-                clickedSphere.userData.clicked = true;  
-            }else{
-                this.showPopup("您已经探索过啦！");  
+            if (intersects.length > 0) {
+                const clickedSphere = intersects[0].object;
+                if (clickedSphere.userData.isCollectible) {
+                    this.collectItem(clickedSphere);
+                } else if (clickedSphere.userData.index !== undefined) {
+                    this.moveCameraToPreset(clickedSphere.userData.index, this.camera, this.controls);
+                } else if (!clickedSphere.userData.clicked) {
+                    this.showPopup(clickedSphere.userData.popupContent);
+                    clickedSphere.userData.clicked = true;  
+                } else {
+                    this.showPopup("您已经探索过啦！");  
+                }
             }
-            
-
-        }
+        });
     }
 
     collectItem(sphere) {
@@ -186,9 +183,9 @@ export class InteractiveSpheres {
         this.inventory.updateInventoryDisplay();
     }
     showPopup(content) {
-        if (this.isPopupOpen) return; // 如果已有弹窗打开，则不再打开新弹窗
-        this.isPopupOpen = true;
-    
+        if (globalState.isPopupCooldown()) return; // 使用全局状态检查冷却
+        globalState.setLastPopupCloseTime(); // 设置最后关闭时间
+      
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.top = '0';
@@ -252,13 +249,21 @@ export class InteractiveSpheres {
         };
     
         // 点击关闭弹窗
-        const closePopup = () => {
+        const closePopup = (event) => {
+            if (event) event.stopPropagation(); // 阻止事件冒泡
             document.body.removeChild(overlay);
-            this.isPopupOpen = false;
+
         };
-    
+
         closeButton.onclick = closePopup;
-    
+
+        // 点击遮罩层关闭弹窗
+        overlay.onclick = (event) => {
+            if (event.target === overlay) {
+                closePopup(event);
+            }
+        };
+
         // 添加动画效果
         setTimeout(() => {
             popup.style.opacity = '0';

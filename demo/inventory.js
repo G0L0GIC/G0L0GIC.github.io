@@ -1,7 +1,7 @@
-
+import globalState from './globalState.js';
 
 export class Inventory {
-    constructor(scene, camera) {
+    constructor(scene, camera,dialogueSystem) {
         this.items = [];
         this.scene = scene;
         this.camera = camera;
@@ -11,6 +11,7 @@ export class Inventory {
         this.loadInventoryTemplate();
         this.createHomeButton();
         this.isPopupOpen = false;
+        this.dialogueSystem = dialogueSystem;
 
     }
 
@@ -228,8 +229,8 @@ export class Inventory {
     }
 
     showCollectPopup(item, index) {
-        if (this.isPopupOpen) return;
-        this.isPopupOpen = true;
+        if (globalState.isPopupCooldown()) return;
+        globalState.setLastPopupCloseTime();
     
         console.log(`Showing popup for item: ${item}, index: ${index}`);
     
@@ -250,12 +251,12 @@ export class Inventory {
         popup.style.left = '50%';
         popup.style.top = '50%';
         popup.style.transform = 'translate(-50%, -50%)';
-        popup.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+        popup.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
         popup.style.backdropFilter = 'blur(10px)';
         popup.style.padding = '30px';
-        popup.style.borderRadius = '10px';
-        popup.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
-        popup.style.border = '1px solid rgba(255, 255, 255, 0.3)';
+        popup.style.borderRadius = '15px';
+        popup.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.2)';
+        popup.style.border = '1px solid rgba(255, 255, 255, 0.5)';
         popup.style.zIndex = '1003';
         popup.style.textAlign = 'center';
         popup.style.color = '#333';
@@ -264,19 +265,51 @@ export class Inventory {
         popup.style.width = '300px';
     
         popup.innerHTML = `
-            <h2 style="margin: 0 0 20px; font-size: 24px; color: #1e3a8a;">恭喜发现！</h2>
-            <div style="background-color: rgba(255, 255, 255, 0.5); border-radius: 50%; width: 120px; height: 120px; margin: 0 auto 20px; display: flex; justify-content: center; align-items: center; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <img src="${imageSrc}" alt="${item}" style="width: 80%; height: 80%; object-fit: contain;">
-            </div>
-            <p style="font-size: 18px; margin-bottom: 20px;">你收集到了 <span style="font-weight: bold; color: #2c5282;">${item}</span></p>
-            <div id="closeButton" style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background-color: rgba(59, 130, 246, 0.8); color: white; display: flex; justify-content: center; align-items: center; cursor: pointer; opacity: 0; transition: opacity 0.3s ease;">
-                <span style="position: relative; display: inline-block; width: 20px; height: 20px;">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(45deg); width: 16px; height: 2px; background-color: white;"></span>
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); width: 16px; height: 2px; background-color: white;"></span>
-                </span>
-                <span id="closeHint" style="position: absolute; top: 100%; right: 0; background-color: rgba(59, 130, 246, 0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease;">点击关闭</span>
-            </div>
-        `;
+        <h2 style="margin: 0 0 20px; font-size: 28px; color: #1e3a8a;">发现！</h2>
+        <div style="
+            background: radial-gradient(circle, rgba(255, 223, 0, 0.6) 0%, rgba(255, 165, 0, 0.4) 100%);
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        ">
+            <img src="${imageSrc}" alt="${item}" style="
+                max-width: 80%;
+                max-height: 80%;
+                object-fit: contain;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            ">
+        </div>
+        <p style="font-size: 22px; margin-bottom: 20px; color: #2c5282;">你收集到了 <span style="font-weight: bold;">${item}</span></p>
+        <div id="closeButton" style="
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(59, 130, 246, 0.5);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        ">
+            <span style="position: relative; display: inline-block; width: 20px; height: 20px;">
+                <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(45deg); width: 16px; height: 2px; background-color: white;"></span>
+                <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); width: 16px; height: 2px; background-color: white;"></span>
+            </span>
+            <span id="closeHint" style="position: absolute; top: 100%; right: 0; background-color: rgba(59, 130, 246, 0.6); color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease;">点击关闭</span>
+        </div>
+    `;
     
         overlay.appendChild(popup);
         document.body.appendChild(overlay);
@@ -302,24 +335,19 @@ export class Inventory {
         };
     
         // 点击关闭弹窗
-        const closePopup = () => {
+        const closePopup = (event) => {
+            if (event) event.stopPropagation();
             document.body.removeChild(overlay);
-            this.isPopupOpen = false;
-            this.lastPopupCloseTime = Date.now();
+            globalState.setLastPopupCloseTime();
         };
-    
-        closeButton.onclick = (event) => {
-            event.stopPropagation();
-            closePopup();
-        };
-    
+
+        closeButton.onclick = closePopup;
+
         overlay.onclick = (event) => {
             if (event.target === overlay) {
-                event.stopPropagation();
-                closePopup();
+                closePopup(event);
             }
         };
-    
         // 添加动画效果
         setTimeout(() => {
             popup.style.opacity = '0';
@@ -342,88 +370,24 @@ export class Inventory {
     }
     
     showVictoryPopup() {
-        if (this.isPopupOpen) return;
-        this.isPopupOpen = true;
-    
-        const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-        overlay.style.zIndex = '1002';
-    
-        const popup = document.createElement('div');
-        popup.style.position = 'fixed';
-        popup.style.left = '50%';
-        popup.style.top = '50%';
-        popup.style.transform = 'translate(-50%, -50%)';
-        popup.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
-        popup.style.backdropFilter = 'blur(10px)';
-        popup.style.padding = '30px';
-        popup.style.borderRadius = '10px';
-        popup.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
-        popup.style.border = '1px solid rgba(255, 255, 255, 0.3)';
-        popup.style.zIndex = '1003';
-        popup.style.textAlign = 'center';
-        popup.style.color = '#333';
-        popup.style.fontFamily = 'Segoe UI, Arial, sans-serif';
-        popup.style.transition = 'all 0.3s ease-in-out';
-        popup.style.width = '300px';
-    
-        popup.innerHTML = `
-            <h2 style="margin: 0 0 20px; font-size: 24px; color: #1e3a8a;">恭喜胜利！</h2>
-            <p style="font-size: 18px; margin-bottom: 20px;">你已经收集到了所有需要的物品，成功完成了游戏！</p>
-            <div id="closeButton" style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background-color: rgba(59, 130, 246, 0.8); color: white; display: flex; justify-content: center; align-items: center; cursor: pointer; opacity: 0; transition: opacity 0.3s ease;">
-                <span style="position: relative; display: inline-block; width: 20px; height: 20px;">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(45deg); width: 16px; height: 2px; background-color: white;"></span>
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); width: 16px; height: 2px; background-color: white;"></span>
-                </span>
-                <span id="closeHint" style="position: absolute; top: 100%; right: 0; background-color: rgba(59, 130, 246, 0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease;">点击关闭</span>
-            </div>
-        `;
-    
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-    
-        const closeButton = popup.querySelector('#closeButton');
-        const closeHint = popup.querySelector('#closeHint');
-    
-        // 鼠标悬浮在弹窗上时显示关闭按钮
-        popup.onmouseover = () => {
-            closeButton.style.opacity = '1';
-        };
-        popup.onmouseout = () => {
-            closeButton.style.opacity = '0';
-            closeHint.style.opacity = '0';
-        };
-    
-        // 鼠标悬浮在关闭按钮上时显示提示
-        closeButton.onmouseover = () => {
-            closeHint.style.opacity = '1';
-        };
-        closeButton.onmouseout = () => {
-            closeHint.style.opacity = '0';
-        };
-    
-        // 点击关闭弹窗
-        const closePopup = () => {
-            document.body.removeChild(overlay);
-            this.isPopupOpen = false;
- 
-        };
-    
-    
-        closeButton.onclick = closePopup;
-    
-        // 添加动画效果
-        setTimeout(() => {
-            popup.style.opacity = '0';
-            popup.style.transform = 'translate(-50%, -50%) scale(0.95)';
-            popup.offsetHeight; // 触发重绘
-            popup.style.opacity = '1';
-            popup.style.transform = 'translate(-50%, -50%) scale(1)';
-        }, 0);
+        this.dialogueSystem.show(
+            "神秘声音",
+            "恭喜你！你已经收集到了所有需要的物品，成功完成了游戏！",
+            [
+                { 
+                    text: "返回主菜单", 
+                    callback: () => {
+                        window.location.href = 'index.html';
+                    }
+                },
+                { 
+                    text: "继续探索", 
+                    callback: () => {
+                        // 可以在这里添加继续探索的逻辑
+                    }
+                }
+            ]
+        );
     }
+
 }

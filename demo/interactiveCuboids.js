@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import globalState from './globalState.js';
 
 export class InteractiveCuboids {
     constructor(scene, camera, inventory) {
@@ -10,7 +11,7 @@ export class InteractiveCuboids {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.popupElement = null;
-        this.isPopupOpen = false;
+
 
         this.createCuboids();
         this.createCollectibleCuboids();
@@ -26,7 +27,7 @@ export class InteractiveCuboids {
             { position: [6.61672, 2.22771, 0.37330], size: [0.6, 1.2, 1.0], color: 0xff0000, popupContent: "再靠近一点就要融化" },
             { position: [6.61253, 0.76913, 0.37655], size: [0.6, 1.2, 1.0], color: 0xff0000, popupContent: "Man,what can i say" },
             { position: [0.26010, 8.32017, -0.09837], size: [1.2, 0.1, 2.0], color: 0xff0000, popupContent: "门把手非常坚硬，拧不动..." },
-            { position: [5.75930, 7.94055, -0.15382], size: [1.2, 0.2, 2.0], color: 0xff0000, popupContent: "芝士猞猁" },
+            { position: [5.75930, 7.94055, -0.15382], size: [1.2, 0.2, 2.0], color: 0xf5f5f5, popupContent: "芝士猞猁" },
             { position: [-0.16736, 0.65541, -0.03592], size: [0.45, 0.45, 1.6], color: 0xff0000, popupContent: "老师姓猫...猫老师。" }
             
         ];
@@ -102,30 +103,33 @@ export class InteractiveCuboids {
         cuboid.renderOrder = 1;
         return cuboid;
     }
+
     setupMouseClickHandler() {
-        window.addEventListener('click',  this.onMouseClick.bind(this));
-    }
-    onMouseClick(event) {
-        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        window.addEventListener('click', (event) => {
+            if (globalState.isPopupCooldown()) return;
 
-        this.raycaster.setFromCamera(this.mouse, this.camera);
+            this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        const allCuboids = [...this.cuboids, ...this.collectibleCuboids];
-        const intersects = this.raycaster.intersectObjects(allCuboids);
+            this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        if (intersects.length > 0) {
-            const clickedCuboid = intersects[0].object;
-            if (clickedCuboid.userData.isCollectible) {
-                this.collectItem(clickedCuboid);
-            } else if (!clickedCuboid.userData.clicked) {
-                this.showPopup(clickedCuboid.userData.popupContent);
-                clickedCuboid.userData.clicked = true;
-            } else {
-                this.showPopup("您已经探索过啦！");
+            const allCuboids = [...this.cuboids, ...this.collectibleCuboids];
+            const intersects = this.raycaster.intersectObjects(allCuboids);
+
+            if (intersects.length > 0) {
+                const clickedCuboid = intersects[0].object;
+                if (clickedCuboid.userData.isCollectible) {
+                    this.collectItem(clickedCuboid);
+                } else if (!clickedCuboid.userData.clicked) {
+                    this.showPopup(clickedCuboid.userData.popupContent);
+                    clickedCuboid.userData.clicked = true;
+                } else {
+                    this.showPopup("您已经探索过啦！");
+                }
             }
-        }
+        });
     }
+   
     
     collectItem(cuboid) {
         const item = cuboid.userData.item;
@@ -143,8 +147,9 @@ export class InteractiveCuboids {
     }
 
     showPopup(content) {
-        if (this.isPopupOpen) return; // 如果已有弹窗打开，则不再打开新弹窗
-        this.isPopupOpen = true;
+        if (globalState.isPopupCooldown()) return; // 使用全局状态检查冷却
+        globalState.setLastPopupCloseTime(); // 设置最后关闭时间
+      
     
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
@@ -177,11 +182,11 @@ export class InteractiveCuboids {
             <h2 style="margin: 0 0 20px; font-size: 24px; color: #1e3a8a;">信息</h2>
             <p id="popupContent" style="font-size: 18px; line-height: 1.5; margin-bottom: 20px;">${content}</p>
             <div id="closeButton" style="position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background-color: rgba(59, 130, 246, 0.8); color: white; display: flex; justify-content: center; align-items: center; cursor: pointer; opacity: 0; transition: opacity 0.3s ease;">
-                <span style="position: relative; display: inline-block; width: 20px; height: 20px;">
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(45deg); width: 16px; height: 2px; background-color: white;"></span>
-                    <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); width: 16px; height: 2px; background-color: white;"></span>
-                </span>
-                <span id="closeHint" style="position: absolute; top: 100%; right: 0; background-color: rgba(59, 130, 246, 0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease;">点击关闭</span>
+            <span style="position: relative; display: inline-block; width: 20px; height: 20px;">
+                <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(45deg); width: 16px; height: 2px; background-color: white;"></span>
+                <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); width: 16px; height: 2px; background-color: white;"></span>
+            </span>
+            <span id="closeHint" style="position: absolute; top: 100%; right: 0; background-color: rgba(59, 130, 246, 0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease;">点击关闭</span>
             </div>
         `;
     
@@ -191,37 +196,44 @@ export class InteractiveCuboids {
         const closeButton = popup.querySelector('#closeButton');
         const closeHint = popup.querySelector('#closeHint');
     
-        // 鼠标悬浮在弹窗上时显示关闭按钮
-        popup.onmouseover = () => {
-            closeButton.style.opacity = '1';
-        };
-        popup.onmouseout = () => {
-            closeButton.style.opacity = '0';
-            closeHint.style.opacity = '0';
-        };
-    
-        // 鼠标悬浮在关闭按钮上时显示提示
-        closeButton.onmouseover = () => {
-            closeHint.style.opacity = '1';
-        };
-        closeButton.onmouseout = () => {
-            closeHint.style.opacity = '0';
-        };
-    
-        // 点击关闭弹窗
-        const closePopup = () => {
-            document.body.removeChild(overlay);
-            this.isPopupOpen = false;
-        };
-    
-        closeButton.onclick = closePopup;
-    
-        // 添加动画效果
-        setTimeout(() => {
-            popup.style.opacity = '0';
-            popup.style.transform = 'translate(-50%, -50%) scale(0.95)';
-            popup.offsetHeight; // 触发重绘
-            popup.style.opacity = '1';
+    // 鼠标悬浮在弹窗上时显示关闭按钮
+    popup.onmouseover = () => {
+        closeButton.style.opacity = '1';
+    };
+    popup.onmouseout = () => {
+        closeButton.style.opacity = '0';
+        closeHint.style.opacity = '0';
+    };
+
+    // 鼠标悬浮在关闭按钮上时显示提示
+    closeButton.onmouseover = () => {
+        closeHint.style.opacity = '1';
+    };
+    closeButton.onmouseout = () => {
+        closeHint.style.opacity = '0';
+    };
+
+    // 点击关闭弹窗
+    const closePopup = (event) => {
+        if (event) event.stopPropagation(); // 阻止事件冒泡
+        document.body.removeChild(overlay);
+        globalState.setLastPopupCloseTime(); // 使用全局状态设置关闭时间
+    };
+    closeButton.onclick = closePopup;
+
+    // 点击遮罩层关闭弹窗
+    overlay.onclick = (event) => {
+        if (event.target === overlay) {
+            closePopup(event);
+        }
+    };
+
+    // 添加动画效果
+    setTimeout(() => {
+        popup.style.opacity = '0';
+        popup.style.transform = 'translate(-50%, -50%) scale(0.95)';
+        popup.offsetHeight; // 触发重绘
+        popup.style.opacity = '1';
             popup.style.transform = 'translate(-50%, -50%) scale(1)';
         }, 0);
     }
