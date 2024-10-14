@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="build/coi-serviceworker.js"></script>
+    <script src="demo/coi-serviceworker.js"></script>
     <title>失控时空标题页</title>
-    <link rel="icon" href="build/UI/title/RST_favicon.ico" type="image/x-ico">
+    <link rel="icon" href="demo/UI/title/RST_favicon.ico" type="image/x-ico">
     <style>
         body {
             margin: 0; /* 移除默认的body边距 */
             overflow: hidden; /* 隐藏超出视窗的内容 */
             position: relative; /* 设置为相对定位 */
-            background-image: url('build/UI/title/title1.png'); /* 设置背景图片 */
+            background-image: url('demo/UI/title/title1.png'); /* 设置背景图片 */
             background-size: cover; /* 背景图片等比缩放至覆盖整个元素 */
             background-position: center; /* 背景图片居中 */
             animation: moveBG 30s infinite alternate;  /* 动画效果 */
@@ -93,7 +93,7 @@
         /* 悬停触发图片 */
         .left-block a:hover::after {
             content: '';
-            background-image: url('build/UI/title/title5.png'); /* 悬停时显示的图片 */
+            background-image: url('demo/UI/title/title5.png'); /* 悬停时显示的图片 */
             position: absolute;
             top: -25px; /* 根据需要调整位置 */
             left: 100%;
@@ -127,14 +127,14 @@
 <body>
     <div class="background"></div>
     <div class="overlay">
-        <div><img src="build/UI/title/title3.png" alt="Overlay 1"></div>
+        <div><img src="demo/UI/title/title3.png" alt="Overlay 1"></div>
     </div>
     <div class="right-image">
-        <img src="build/UI/title/title2.png" alt="Right Image">
+        <img src="demo/UI/title/title2.png" alt="Right Image">
     </div>
 
     <div class="left-block">
-        <a href="build/main.html">开始游戏</a> <!-- 跳转到游戏页面 -->
+        <a href="demo/main.html">开始游戏</a> <!-- 跳转到游戏页面 -->
         <a href="gallery.html">画廊</a> <!-- 跳转到画廊页面 -->
         <a href="options.html">选项</a> <!-- 跳转到选项页面 -->
         <a href="achievements.html">成就</a> <!-- 跳转到成就页面 -->
@@ -143,9 +143,9 @@
     </div>
 
     <div class="bottom-block">
-        <img src="build/UI/hint/hint1.png" alt="hint 1"> <!-- hint1 -->
+        <img src="demo/UI/hint/hint1.png" alt="hint 1"> <!-- hint1 -->
         <span>确定</span>
-        <img src="build/UI/hint/hint2.png" alt="hint 2"> <!-- hint2 -->
+        <img src="demo/UI/hint/hint2.png" alt="hint 2"> <!-- hint2 -->
         <span>返回</span>
     </div>
 </body>
