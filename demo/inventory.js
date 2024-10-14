@@ -377,7 +377,7 @@ export class Inventory {
                 { 
                     text: "返回主菜单", 
                     callback: () => {
-                        window.location.href = 'index.html';
+                        window.location.href = './index.html';
                     }
                 },
                 { 
