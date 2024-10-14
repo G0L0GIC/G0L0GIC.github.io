@@ -23,7 +23,7 @@ export class Inventory {
     
     createHomeButton() {
         const button = this.createGlassButton('不行就撤', '20px', '200px');
-        button.onclick = () => window.location.href = 'index.html';
+        button.onclick = () => window.location.href = '../index.html';
         document.body.appendChild(button);
     }
     
@@ -377,7 +377,7 @@ export class Inventory {
                 { 
                     text: "返回主菜单", 
                     callback: () => {
-                        window.location.href = './index.html';
+                        window.location.href = '../index.html';
                     }
                 },
                 { 
