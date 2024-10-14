@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="coi-serviceworker.js"></script>
+    <title>失控时空标题页</title>
+    <style>
+        body {
+            margin: 0; /* 移除默认的body边距 */
+            overflow: hidden; /* 隐藏超出视窗的内容 */
+            position: relative; /* 设置为相对定位 */
+            background-image: url('UI/title/title1.png'); /* 设置背景图片 */
+            background-size: cover; /* 背景图片等比缩放至覆盖整个元素 */
+            background-position: center; /* 背景图片居中 */
+            animation: moveBG 30s infinite alternate;  /* 动画效果 */
+        }
+
+        @keyframes moveBG {
+            0% { background-position: center 0%; }
+            100% { background-position: center 25%; }
+        }
+        
+
+        /* 上方覆盖的图片 */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;/* 图片层级 */
+        }
+
+        .overlay img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 右边的图片 */
+        .right-image {
+            position: absolute;
+            right: 80px;
+            top: 350px;
+            size: 80%;  /* 图片大小 */
+            transform: translateY(-50%);
+        }
+
+        /* 左侧区块 */
+        .left-block {
+            position: absolute;
+            left: 180px;
+            top: 100px; /* 距离屏幕顶部 */
+            color: transparent;
+            font-size: 40px;
+            
+            
+        }
+
+        .left-block a {
+            display: block; /* 块级元素 */
+            text-align: center; /* 文字居中 */
+            background: linear-gradient(to bottom, white, gray); /* 渐变背景 */
+            -webkit-background-clip: text; /* 将背景裁剪为文字形状 */
+            
+            color: transparent; /* 文字颜色透明 */
+            transition: color 0.3s; /* 颜色过渡效果 */
+            position: relative; /* 相对定位 */
+            text-decoration: none; /* 去除默认的下划线 */
+           
+        }
+
+        .left-block a::after {
+            content: ''; /* 空内容 */
+            position: absolute; /* 绝对定位 */
+            top: 4px; /* 阴影垂直偏移量 */
+            left: 50%; /* 水平居中 */
+            transform: translateX(-50%); /* 水平居中 */
+            width: 100%; /* 阴影宽度与文字相同 */
+            height: 100%; /* 阴影高度与文字相同 */
+            background: linear-gradient(to bottom, rgb(53, 29, 235,0.3), rgba(0, 0, 0, 0.3)); /* 阴影颜色 */
+            z-index: -1; /* 确保阴影在文字下方 */
+            border-radius: 4px; /* 圆角阴影 */
+            
+        }
+        
+        .left-block a:hover {
+            color: transparent;
+        }
+
+        /* 悬停触发图片 */
+        .left-block a:hover::after {
+            content: '';
+            background-image: url('UI/title/title5.png'); /* 悬停时显示的图片 */
+            position: absolute;
+            top: -25px; /* 根据需要调整位置 */
+            left: 100%;
+            transform: translateX(-50%);
+            width: 350px; /* 根据需要调整大小 */
+            height: 100px; /* 根据需要调整大小 */
+            background-size: cover;
+            z-index: 1;
+        }   
+
+        /* 下方区块 */
+        .bottom-block {
+            position: absolute;
+            left: 150px;
+            bottom: -700px; /* 距离屏幕下边缘 */
+            display: flex;
+            align-items: center;/* 垂直居中 */
+            justify-content: center;/* 居中 */
+            color: white;
+           }
+
+        .bottom-block img {
+            margin-right: 10px; /* 调整图片与文字之间的间距 */
+        }
+
+        .bottom-block span {
+            margin-right: 50px; /* 调整文字与按钮之间的间距 */
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="overlay">
+        <div><img src="UI/title/title3.png" alt="Overlay 1"></div>
+    </div>
+    <div class="right-image">
+        <img src="UI/title/title2.png" alt="Right Image">
+    </div>
+
+     <!-- 注：开始游戏处具体链接到哪个页面得你们帮忙连一下，我电脑出bug了到现在garden和index都跑不起来黑屏；其他五个选项等demo整完后再考虑怎么整（其实就是我太呆子） -->
+    <div class="left-block">
+        <a href="garden.html">开始游戏</a> <!-- 跳转到游戏页面 -->
+        <a href="gallery.html">画廊</a> <!-- 跳转到画廊页面 -->
+        <a href="options.html">选项</a> <!-- 跳转到选项页面 -->
+        <a href="achievements.html">成就</a> <!-- 跳转到成就页面 -->
+        <a href="credits.html">制作人员</a> <!-- 跳转到制作人员页面 -->
+        <a href="exit.html">退出</a> <!-- 跳转到退出页面 -->
+    </div>
+
+    <div class="bottom-block">
+        <img src="UI/hint/hint1.png" alt="hint 1"> <!-- hint1 -->
+        <span>确定</span>
+        <img src="UI/hint/hint2.png" alt="hint 2"> <!-- hint2 -->
+        <span>返回</span>
+    </div>
+</body>
+</html>

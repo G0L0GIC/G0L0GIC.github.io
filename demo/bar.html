@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务栏和物品栏</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+       * { /* 全局样式 */
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* 盒模型 */
+        }
+        @font-face {
+            font-family: 'shouxieti';
+            src: url('UI/bar/STFWXZKJW.TTF') format('truetype'); 
+            font-weight: normal; 
+            font-style: normal; 
+        }
+        body {
+            background-image: url('UI/bar/bar1.png');
+            background-size: cover;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .right-block {
+            position: absolute; 
+            right: 10px;
+            top: 300px; 
+            cursor: pointer;
+            transform: translatey(0); 
+            z-index: 1;
+        }
+
+
+        .right-block img {
+            width: 40%;
+            height: 40%;
+        }
+        
+        .hide {
+            display: none;
+        }
+
+        /* 返回按钮 */
+        .backbutton {
+            position: absolute;
+            top: 50px; 
+            right: -200px; 
+            cursor: pointer;
+            z-index: 1;
+            transition: left 0.9s;
+        }
+        
+        .backbutton img {
+                width: 40%;
+                height: 40%;
+        }
+
+        、.backbutton:hover {
+            left: 0;
+        }
+
+        /* 转动背景 */
+        #rotatingImage {
+            position: absolute;
+            top: 100px;
+            right: -700px;
+            transform: translate(50%, -50%);
+            width: 2700px; 
+            height: 2700px;
+            background-image: url('UI/bar/bar2.png');
+            background-size: cover;
+            animation: rotate 10s linear infinite;
+            transition: left 0.8s;
+        }
+
+        #rotatingImage2 {
+            position: absolute;
+            top: 100px;
+            right: -700px;
+            transform: translate(50%, -50%);
+            width: 2700px; 
+            height: 2700px;
+            background-image: url('UI/bar/bar13.png');
+            background-size: cover;
+            animation: rotate 16s linear infinite;
+            transition: left 0.8s;
+            z-index: -1;
+        }
+       
+        /* 任务栏 */
+        .taskbar {
+            position: absolute;
+            top: 1px; 
+            left: 1px;
+            width: 100%;
+            height: 100%; 
+            background: rgba(105, 35, 35, 0.1);
+            z-index: 0;
+            transition: left 0.5s;
+            z-index: -1;
+        }
+
+      
+
+        @keyframes rotate {
+            from {
+                    transform: translate(50%, -50%) rotate(0deg);
+                }
+                to {
+                    transform: translate(50%, -50%) rotate(-360deg);
+                }
+        }
+
+
+        #leftBottom {
+            position: absolute;
+            left: -500px;
+            top: 50px;
+            width: 1700px;
+            text-align: center; 
+            background-color: rgba(102, 159, 184, 0); 
+        }
+
+        #leftBottom img {
+            display: block;
+            margin: 0 auto; 
+        }
+
+        #textContainer {
+            transform: rotate(7.5deg);
+            position: absolute;
+            top: 300px;
+            left: 385px;
+            transform-origin: 0 0; 
+            margin-top: -50px;
+            margin-left: -100px; 
+            width: 400px; 
+            text-align: left; 
+            background-color: rgba(102, 159, 184, 0);
+        }
+        .rotated-text {
+            font-family: 'shouxieti', sans-serif; 
+            color: #5e3717; 
+            font-size: 24px; 
+            line-height: 1.5; 
+        }
+        
+
+      
+        /* 物品栏 */
+        .itemBar {
+            width: 100%;
+            height: 5000px; 
+            background-color: rgba(255, 0); 
+            position: absolute;
+            right: -100%; 
+            top: 0;
+            transition: right 0.5s; 
+           
+        }
+
+        /* 物品区域 */
+        #itemArea {
+            display: grid;
+            grid-template-columns: repeat(2, 100px);
+            grid-gap: 10px;
+            margin: 10px;
+        }
+
+        .item-slot {/* 物品格子 */
+            top:150px;
+            left:250px;
+            width: 100px;
+            height: 100px;
+            background-image: url('UI/bar/bar11.png');
+            background-size: cover;
+            position: relative;
+        }
+
+        .item-slot:hover {
+            background-image: url('UI/bar/bar10.png');
+            cursor: pointer;
+        }
+
+        .item-text {
+            display: none;
+        }
+
+        .item-slot img {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%; 
+            height: 80%; 
+        }
+
+
+        /* 物品解释区块 */
+        #itemDescription {
+            position: absolute;
+            right: 240px; 
+            top: 150px;
+            transform: translateY(0);
+            width: 482px; 
+            height: 870px; 
+            background-color: rgba(29, 235, 94, 0); 
+            padding: 10px;
+            color: white; 
+            
+        }
+
+        .description-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .description-content img {
+            width: 100%;
+            height: auto;
+        }
+
+        .description-text {
+            position: absolute;
+            top: 22px;
+            left: 40px;
+            transform: translate(0); 
+            width: 90%; 
+            background-color: rgba(29, 235, 94, 0); 
+            text-align: left;
+            white-space: normal; 
+            word-wrap: break-word; 
+            font-size: 40px; 
+            line-height: 1.5; 
+        }
+
+        .description-text2 {
+            position: absolute;
+            top: 140px;
+            left: 40px;
+            transform: translate(0); 
+            width: 83%; 
+            background-color: rgba(29, 235, 94, 0); 
+            text-align: left;
+            white-space: normal; 
+            word-wrap: break-word; 
+            font-size: 21px; 
+            line-height: 1.5; 
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="rotatingImage"></div>
+    <div id="rotatingImage2"></div>
+
+    <div class="taskbar">
+        <div id="leftBottom"> 
+            <img src="UI/bar/bar6.png" alt="日记本" style="width: 100%; height: auto;"> 
+        </div>
+        <div id="backgroundImage">
+            <div id="textContainer">
+                <p class="rotated-text">这里是一段用来测试的测试文字</p>
+                <p class="rotated-text">□□□这是另一段测试文字</p>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="backbutton" onmouseover="this.querySelector('img').src='UI/bar/bar12.png'" onmouseout="this.querySelector('img').src='UI/bar/bar3.png'" onclick="alert('返回（这里用来对接代码返回到游戏界面')">
+        <img src="UI/bar/bar3.png" alt="返回">
+    </div> -->
+
+    <div class="right-block" onclick="toggleInventory()">
+        <img src="UI/bar/bar7.png" alt="to物品栏">
+    </div>
+    
+    <div class="itemBar">
+        <div id="itemArea">
+            <div class="item-slot" onmouseover="showText('物品1')" onclick="selectItem(1)">
+                <img id="slot1" src="UI/goods/goods1.png" alt="物品1">
+                <div class="item-text">物品名称</div>
+            </div>
+            <div class="item-slot" onmouseover="showText('物品2')" onclick="selectItem(2)">
+                <img id="slot2" src="UI/goods/goods2.png" alt="物品2">
+                <div class="item-text">物品名称</div>
+            </div>
+            <div class="item-slot" onmouseover="showText('物品3')" onclick="selectItem(3)">
+                <img id="slot3" src="UI/goods/goods0.png" alt="物品3">
+                <div class="item-text">物品名称</div>
+            </div>
+            <div class="item-slot" onmouseover="showText('物品4')" onclick="selectItem(4)">
+                <img id="slot4" src="UI/goods/goods0.png" alt="物品4">
+                <div class="item-text">物品名称</div>
+            </div>
+            <div class="item-slot" onmouseover="showText('物品5')" onclick="selectItem(5)">
+                <img id="slot5" src="UI/goods/goods0.png" alt="物品5">
+                <div class="item-text">物品名称</div>
+            </div>
+            <div class="item-slot" onmouseover="showText('物品6')" onclick="selectItem(6)">
+                <img id="slot6" src="UI/goods/goods0.png" alt="物品6">
+                <div class="item-text">物品名称</div>
+            </div>
+            <div class="item-slot" onmouseover="showText('物品7')" onclick="selectItem(7)">
+                <img id="slot7" src="UI/goods/goods0.png" alt="物品7">
+                <div class="item-text">物品名称</div>
+            </div>
+            <div class="item-slot" onmouseover="showText('物品8')" onclick="selectItem(8)">
+                <img id="slot8" src="UI/goods/goods0.png" alt="物品8">
+                <div class="item-text">物品名称</div>
+            </div>
+            <div class="item-slot" onmouseover="showText('物品9')" onclick="selectItem(9)">
+                <img id="slot9" src="UI/goods/goods0.png" alt="物品9">
+                <div class="item-text">物品名称</div>
+            </div>
+            <div class="item-slot" onmouseover="showText('物品10')" onclick="selectItem(10)">
+                <img id="slot10" src="UI/goods/goods0.png" alt="物品10">
+                <div class="item-text">物品名称</div>
+            </div>
+            <!-- 添加更多物品格子，但是物品格子就10个暂时应该足够了 -->
+        </div>
+         <!-- 物品解释区块 -->
+        <div id="itemDescription">
+            <div class="description-content">
+                <img src="UI/bar/bar9.png" alt="Description Background" >
+                <div class="description-text">物品名称示例</div>
+                <div class="description-text2">物品名称的详细解释</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleInventory() {
+            var taskbar = document.querySelector('.taskbar');
+            var itemBar = document.querySelector('.itemBar');
+            var rightBlock = document.querySelector('.right-block');
+            var img = rightBlock.querySelector('img');
+
+            if (taskbar.style.left === "-100%") {
+                // 已经移出后的恢复
+                
+                rotatingImage.style.left = "-25%";                  
+                rotatingImage2.style.left = "-25%"
+                taskbar.style.left = "0";
+                itemBar.style.right = "-100%";
+                rightBlock.style.right = "0";
+                img.src = "UI/bar/bar7.png"; // 恢复原图
+            } else {
+                // 移出移入
+                
+                rotatingImage.style.left = "-100%";
+                rotatingImage2.style.left = "-100%";
+                taskbar.style.left = "-100%";
+                itemBar.style.right = "0";
+                rightBlock.style.right = "85%"; // 按钮移到左侧
+                img.src = "UI/bar/bar8.png"; // 更换图片
+                
+            }
+        }
+
+        function goBack() {
+            alert('返回');
+        }
+
+        function showText(itemIndex) {
+            const itemDescription = document.getElementById('itemDescription');
+            const descriptionText = document.querySelector('.description-text');
+            const descriptionText2 = document.querySelector('.description-text2');
+            
+            switch(itemIndex) {
+                case 1:
+                    descriptionText.innerText = "样例1";
+                    descriptionText2.innerText = "物品1的详细解释，这里多打一段用于测试自动换行功能。";
+                    break;
+                case 2:
+                    descriptionText.innerText = "样例2";
+                    descriptionText2.innerText = "物品2的详细解释。";
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                    descriptionText.innerText = "样例3（空物品）";
+                    descriptionText2.innerText = "这是物品0的详细解释（空物品，实际使用中这个不填文字就行）";
+                    break;
+                default:
+                    descriptionText.innerText = "";
+                    descriptionText2.innerText = "";
+            }
+        }
+
+        // 在格子上添加鼠标移出事件来重置文本
+        function resetText() {
+            const itemDescription = document.getElementById('itemDescription');
+            const descriptionText = document.querySelector('.description-text');
+            const descriptionText2 = document.querySelector('.description-text2');
+            descriptionText.innerText = "";
+            descriptionText2.innerText = "";
+        }
+
+        // 为每个item-slot添加mouseover和mouseout事件
+        const itemSlots = document.querySelectorAll('.item-slot');
+        itemSlots.forEach((slot, index) => {
+            slot.addEventListener('mouseover', () => {
+                const img = slot.querySelector('img');
+                const imgSrc = img.getAttribute('src');
+                
+                if (imgSrc.includes('goods1.png')) {
+                    showText(1);
+                } else if (imgSrc.includes('goods2.png')) {
+                    showText(2);
+                } else {
+                    showText(3); // goods0或其他
+                }
+            });
+            
+            slot.addEventListener('mouseout', resetText);
+        });
+    </script>
+</body>
+</html>
+ 
