@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -190,7 +189,8 @@
         <div class="content">
             <p>这里是一段操作说明页的文字</p>
             <p>未来会使用图文（小声）</p>
-            <p>鼠标左键单击：改变视角中心/选定物品/选取/确认</p>
+            <p>鼠标左键：单击设置焦点，拖拽围绕焦点旋转</p>
+            <p>鼠标右键：单击设置焦点，与物体交互</p>
             <p>鼠标滚轮：缩放视角</p>
             <p>等等，好像也没其他操作了（笑）</p>
         </div>
@@ -230,7 +230,7 @@
 
     <script>
         // 音频
-        const audio = new Audio('Audio/music-for-game-fun-kid-game-163649.mp3');
+        const audio = new Audio('Audio/music-for-game-fun-kid-game-163649.ogg');
         audio.loop = true;
         
         // 添加错误处理和用户交互
@@ -250,7 +250,7 @@
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const audioBuffers = {};
         const audioFiles = {
-            startGame: 'Audio/power-up-type-1-230548.mp3',
+            startGame: 'Audio/power-up-type-1-230548.ogg',
             menuClick: 'Audio/click2.ogg',
             menuHover: 'Audio/f.ogg'
         };

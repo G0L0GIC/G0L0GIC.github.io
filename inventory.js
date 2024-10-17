@@ -1,4 +1,5 @@
 import globalState from './globalState.js';
+import { playClickSound } from './audioManager.js';
 
 export class Inventory {
     constructor(scene, camera,dialogueSystem) {
@@ -15,15 +16,21 @@ export class Inventory {
 
     }
 
-    createInventoryButton() {
+    async createInventoryButton() {
         const button = this.createGlassButton('不会就点', '20px', '20px');
-        button.onclick = () => this.toggleInventoryModal();
+        button.onclick = async () => {
+            await playClickSound();
+            this.toggleInventoryModal();
+        };
         document.body.appendChild(button);
     }
     
-    createHomeButton() {
+    async createHomeButton() {
         const button = this.createGlassButton('不行就撤', '20px', '200px');
-        button.onclick = () => window.location.href = 'index.html';
+        button.onclick = async () => {
+            await playClickSound();
+            window.location.href = 'index.html';
+        };
         document.body.appendChild(button);
     }
     
@@ -149,11 +156,13 @@ export class Inventory {
             }
         `;
         document.body.appendChild(script);
+
     }
 
-    toggleInventoryModal() {
+    async toggleInventoryModal() {
         const modal = document.getElementById('inventoryModal');
         if (modal) {
+
             this.isInventoryVisible = !this.isInventoryVisible;
             modal.style.display = this.isInventoryVisible ? 'block' : 'none';
             
