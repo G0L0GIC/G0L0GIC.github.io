@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { presetSpheresData } from './spheres.js';
+import { playWooshSound } from './audioManager.js';
 
-export function moveCameraToPreset(index, camera, controls) {
+export async function moveCameraToPreset(index, camera, controls) {
     const preset = presetSpheresData[index];
     if (!preset) return;
 
@@ -14,6 +15,7 @@ export function moveCameraToPreset(index, camera, controls) {
     const startLookAt = controls.target.clone();
     const startUp = camera.up.clone();
 
+    await playWooshSound();
 
     const animate = (time) => {
         const t = Math.min(1, (time - startTime) / duration);

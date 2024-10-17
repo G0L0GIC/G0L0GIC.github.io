@@ -6,6 +6,7 @@ import { setupCameraLimits } from './cameraslimits.js';
 import { Inventory } from './inventory.js';
 import { InteractiveCuboids } from './interactiveCuboids.js';
 import globalState from './globalState.js';
+import { initAudio, playBackgroundMusic } from './audioManager.js';
 
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -26,6 +27,13 @@ const viewer = new GaussianSplats3D.Viewer({
     'initialCameraLookAt': [	5.04454, 3.84948, -0.34836],
     'sphericalHarmonicsDegree': 2
 });
+
+initAudio();
+
+// 在用户交互后开始播放背景音乐
+document.addEventListener('click', () => {
+  playBackgroundMusic();
+}, { once: true });
 
 
 function createDialogueSystem() {

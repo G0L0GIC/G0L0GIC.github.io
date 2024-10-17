@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import globalState from './globalState.js';
+import { playCollectSound, playClickSound } from './audioManager.js';
 
 
 export const presetSpheresData = [
@@ -56,6 +57,8 @@ export class InteractiveSpheres {
         this.mouse = new THREE.Vector2();
         this.popupElement = null;
         this.isPopupOpen = false;
+        this.minInteractionDistance = 0;
+        this.maxInteractionDistance = 2;
 
 
         this.createSpheres();
@@ -141,34 +144,45 @@ export class InteractiveSpheres {
     }
 
     setupMouseClickHandler() {
-        window.addEventListener('click', (event) => {
+        window.addEventListener('contextmenu', async (event) => {
+            event.preventDefault();
+    
             if (globalState.isPopupCooldown()) return;
-
+    
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
+    
             this.raycaster.setFromCamera(this.mouse, this.camera);
-
+    
             const allSpheres = [...this.spheres, ...this.presetSpheres, ...this.collectibleSpheres];
             const intersects = this.raycaster.intersectObjects(allSpheres);
-
+    
             if (intersects.length > 0) {
                 const clickedSphere = intersects[0].object;
-                if (clickedSphere.userData.isCollectible) {
-                    this.collectItem(clickedSphere);
-                } else if (clickedSphere.userData.index !== undefined) {
-                    this.moveCameraToPreset(clickedSphere.userData.index, this.camera, this.controls);
-                } else if (!clickedSphere.userData.clicked) {
-                    this.showPopup(clickedSphere.userData.popupContent);
-                    clickedSphere.userData.clicked = true;  
+                const distance = this.camera.position.distanceTo(clickedSphere.position);
+    
+                if (distance > this.minInteractionDistance && distance < this.maxInteractionDistance) {
+                    if (clickedSphere.userData.isCollectible) {
+                        await this.collectItem(clickedSphere);
+                    } else if (clickedSphere.userData.index !== undefined) {
+                        await this.moveCameraToPreset(clickedSphere.userData.index, this.camera, this.controls);
+                    } else if (!clickedSphere.userData.clicked) {
+                        await this.showPopup(clickedSphere.userData.popupContent);
+                        clickedSphere.userData.clicked = true;  
+                    } else {
+                        await this.showPopup("您已经探索过啦！");  
+                    }
                 } else {
-                    this.showPopup("您已经探索过啦！");  
+                    await this.showPopup("再靠近一点看看吧！");
                 }
             }
         });
     }
 
-    collectItem(sphere) {
+
+
+    async collectItem(sphere) {
+        await playCollectSound();
         const item = sphere.userData.item;
         const description = sphere.userData.description;
         const index = sphere.userData.index;
@@ -181,8 +195,11 @@ export class InteractiveSpheres {
         }
         this.inventory.showCollectPopup(item,index);
         this.inventory.updateInventoryDisplay();
+        await playCollectSound();
     }
-    showPopup(content) {
+
+    async showPopup(content) {
+        
         if (globalState.isPopupCooldown()) return; // 使用全局状态检查冷却
         globalState.setLastPopupCloseTime(); // 设置最后关闭时间
       
@@ -272,5 +289,7 @@ export class InteractiveSpheres {
             popup.style.opacity = '1';
             popup.style.transform = 'translate(-50%, -50%) scale(1)';
         }, 0);
+
+        await playClickSound();
     }
  }

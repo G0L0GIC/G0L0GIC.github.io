@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src=" coi-serviceworker.js"></script>
     <title>失控时空标题页</title>
     <link rel="icon" href=" UI/title/RST_favicon.ico" type="image/x-ico">
+
     <style>
         body {
             margin: 0; /* 移除默认的body边距 */
@@ -227,27 +229,90 @@
 
 
     <script>
-        document.getElementById('how-to-play').addEventListener('click', function() {
-            document.getElementById('how-to-play-block').style.display = 'flex';
+        // 音频
+        const audio = new Audio('Audio/music-for-game-fun-kid-game-163649.mp3');
+        audio.loop = true;
+        
+        // 添加错误处理和用户交互
+        audio.addEventListener('error', function() {
+            console.error('音频加载失败：', audio.error);
         });
 
-        document.getElementById('gallery').addEventListener('click', function() {
-            document.getElementById('gallery-block').style.display = 'flex';
-        });
-
-        document.getElementById('achievements').addEventListener('click', function() {
-            document.getElementById('achievements-block').style.display = 'flex';
-        });
-
-        document.getElementById('credits').addEventListener('click', function() {
-            document.getElementById('credits-block').style.display = 'flex';
-        });
-
+        // 由于浏览器的自动播放策略，我们需要用户交互才能开始播放
         document.addEventListener('click', function() {
-            if (event.target.classList.contains('overlay')) {
-                event.target.style.display = 'none';
+            audio.play().catch(function(error) {
+                console.error('音频播放失败：', error);
+            });
+        }, { once: true });  // 只在第一次点击时触发
+
+
+        // 使用 Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audioBuffers = {};
+        const audioFiles = {
+            startGame: 'Audio/power-up-type-1-230548.mp3',
+            menuClick: 'Audio/click2.ogg',
+            menuHover: 'Audio/f.ogg'
+        };
+
+        // 预加载音频
+        function preloadAudio() {
+            const promises = Object.entries(audioFiles).map(([key, url]) => 
+            fetch(url)
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+                .then(audioBuffer => {
+                    audioBuffers[key] = audioBuffer;
+                })
+            );
+            return Promise.all(promises);
+        }
+
+        // 播放音效
+        function playSound(key) {
+            if (audioBuffers[key]) {
+                const source = audioContext.createBufferSource();
+                source.buffer = audioBuffers[key];
+                source.connect(audioContext.destination);
+                source.start(0);
             }
-        });  
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            const startGame = document.getElementById('start-game');
+            const menuItems = ['gallery', 'how-to-play', 'achievements', 'credits'];
+
+            startGame.addEventListener('click', () => playSound('startGame'));
+
+            menuItems.forEach(item => {
+                const element = document.getElementById(item);
+                element.addEventListener('click', (event) => {
+                    event.preventDefault();
+                playSound('menuClick');
+                    document.getElementById(item + '-block').style.display = 'flex';
+                });
+                element.addEventListener('mouseenter', () => playSound('menuHover'));
+            });
+
+            document.addEventListener('click', (event) => {
+                if (event.target.classList.contains('overlay')) {
+                    event.target.style.display = 'none';
+                }
+            });
+        }
+
+        // 页面加载完成后预加载音频并设置事件监听器
+        document.addEventListener('DOMContentLoaded', () => {
+            preloadAudio().then(setupEventListeners);
+        });
+
+        // 用户交互时启动音频上下文（解决自动播放策略问题）
+        document.addEventListener('click', () => {
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+            }
+        }, { once: true });
         
         function toggleOverlay(blockId) {
             const block = document.getElementById(blockId);

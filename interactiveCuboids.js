@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import globalState from './globalState.js';
-
+import { playCollectSound, playClickSound } from './audioManager.js';
 export class InteractiveCuboids {
     constructor(scene, camera, inventory) {
         this.scene = scene;
@@ -11,6 +11,8 @@ export class InteractiveCuboids {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.popupElement = null;
+        this.minInteractDistance = 0;
+        this.maxInteractDistance = 2;
 
 
         this.createCuboids();
@@ -105,33 +107,41 @@ export class InteractiveCuboids {
     }
 
     setupMouseClickHandler() {
-        window.addEventListener('click', (event) => {
+        window.addEventListener('contextmenu', (event) => {
+            event.preventDefault(); // 阻止默认的右键菜单
+    
             if (globalState.isPopupCooldown()) return;
-
+    
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
+    
             this.raycaster.setFromCamera(this.mouse, this.camera);
-
+    
             const allCuboids = [...this.cuboids, ...this.collectibleCuboids];
             const intersects = this.raycaster.intersectObjects(allCuboids);
-
+    
             if (intersects.length > 0) {
                 const clickedCuboid = intersects[0].object;
-                if (clickedCuboid.userData.isCollectible) {
-                    this.collectItem(clickedCuboid);
-                } else if (!clickedCuboid.userData.clicked) {
-                    this.showPopup(clickedCuboid.userData.popupContent);
-                    clickedCuboid.userData.clicked = true;
+                const distance = this.camera.position.distanceTo(clickedCuboid.position);
+    
+                if (distance > this.minInteractDistance && distance < this.maxInteractDistance) {
+                    if (clickedCuboid.userData.isCollectible) {
+                        this.collectItem(clickedCuboid);
+                    } else if (!clickedCuboid.userData.clicked) {
+                        this.showPopup(clickedCuboid.userData.popupContent);
+                        clickedCuboid.userData.clicked = true;
+                    } else {
+                        this.showPopup("您已经探索过啦！");
+                    }
                 } else {
-                    this.showPopup("您已经探索过啦！");
+                    this.showPopup("再近一点点……");
                 }
             }
         });
     }
    
     
-    collectItem(cuboid) {
+    async collectItem(cuboid) {
         const item = cuboid.userData.item;
         const description = cuboid.userData.description;
         const index = cuboid.userData.index;  // 确保这里获取了正确的索引
@@ -144,9 +154,10 @@ export class InteractiveCuboids {
         }
         this.inventory.showCollectPopup(item,index);
         this.inventory.updateInventoryDisplay();
+        await playCollectSound();
     }
 
-    showPopup(content) {
+    async showPopup(content) {
         if (globalState.isPopupCooldown()) return; // 使用全局状态检查冷却
         globalState.setLastPopupCloseTime(); // 设置最后关闭时间
       
@@ -236,5 +247,7 @@ export class InteractiveCuboids {
         popup.style.opacity = '1';
             popup.style.transform = 'translate(-50%, -50%) scale(1)';
         }, 0);
+
+        await playClickSound();
     }
 }
